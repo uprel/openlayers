@@ -144,6 +144,16 @@ ol.Geolocation.prototype.getAltitudeCorrected = function() {
         this.get(ol.GeolocationProperty.ALTITUDE_CORRECTED));
 };
 
+ol.Geolocation.prototype.getAntennaHeight = function() {
+    return /** @type {number|undefined} */ (
+        this.get(ol.GeolocationProperty.ANTENNA_HEIGHT));
+};
+
+ol.Geolocation.prototype.getAltCorrection = function() {
+    return /** @type {number|undefined} */ (
+        this.get(ol.GeolocationProperty.ALT_CORRECTION));
+};
+
 /**
  * @private
  * @param {GeolocationPosition} position position event.
@@ -151,8 +161,8 @@ ol.Geolocation.prototype.getAltitudeCorrected = function() {
 ol.Geolocation.prototype.positionChange_ = function(position) {
     var coords = position.coords;
     //uros
-    var antenna = isNaN(this.get(ol.GeolocationProperty.ANTENNA_HEIGHT)) ? 0 : this.get(ol.GeolocationProperty.ANTENNA_HEIGHT);
-    var correction = isNaN(this.get(ol.GeolocationProperty.ALT_CORRECTION)) ? 0 : this.get(ol.GeolocationProperty.ALT_CORRECTION);
+    var antenna = isNaN(this.getAntennaHeight()) ? 0 : this.getAntennaHeight();
+    var correction = isNaN(this.getAltCorrection()) ? 0 : this.getAltCorrection();
 
     this.set(ol.GeolocationProperty.TIMESTAMP, position.timestamp);
     this.set(ol.GeolocationProperty.ACCURACY, coords.accuracy);
