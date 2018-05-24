@@ -217,39 +217,41 @@ ol.format.GMLBase.prototype.readGeometryElement = function(node, objectStack) {
  * @return {ol.Feature} Feature.
  */
 ol.format.GMLBase.prototype.readFeatureElement = function(node, objectStack) {
-  var n;
-  var fid = node.getAttribute('fid') ||
-      ol.xml.getAttributeNS(node, ol.format.GMLBase.GMLNS, 'id');
-  var values = {}, geometryName;
-  for (n = node.firstElementChild; n; n = n.nextElementSibling) {
-    var localName = n.localName;
-    // Assume attribute elements have one child node and that the child
-    // is a text or CDATA node (to be treated as text).
-    // Otherwise assume it is a geometry node.
-    if (n.childNodes.length === 0 ||
-        (n.childNodes.length === 1 &&
-        (n.firstChild.nodeType === 3 || n.firstChild.nodeType === 4))) {
-      var value = ol.xml.getAllTextContent(n, false);
-      if (ol.format.GMLBase.ONLY_WHITESPACE_RE_.test(value)) {
-        value = undefined;
-      }
-      values[localName] = value;
-    } else {
-      // boundedBy is an extent and must not be considered as a geometry
-      if (localName !== 'boundedBy') {
-        geometryName = localName;
-      }
-      values[localName] = this.readGeometryElement(n, objectStack);
+    var n;
+    var fid = node.getAttribute('fid') ||
+        ol.xml.getAttributeNS(node, ol.format.GMLBase.GMLNS, 'id');
+    var values = {}, geometryName;
+    for (n = node.firstElementChild; n; n = n.nextElementSibling) {
+        var localName = n.localName;
+        // Assume attribute elements have one child node and that the child
+        // is a text or CDATA node (to be treated as text).
+        // Otherwise assume it is a geometry node.
+        if (n.childNodes.length === 0 ||
+            (n.childNodes.length === 1 &&
+            (n.firstChild.nodeType === 3 || n.firstChild.nodeType === 4))) {
+            var value = ol.xml.getAllTextContent(n, false);
+            if (ol.format.GMLBase.ONLY_WHITESPACE_RE_.test(value)) {
+                value = undefined;
+            }
+            values[localName] = value;
+        } else {
+            // boundedBy is an extent and must not be considered as a geometry
+            if (localName !== 'boundedBy') {
+                geometryName = localName;
+                //UROS own way, ol method below doesn't work
+                values[localName] = mobAttEditor.parseGeometryPointElement(n);
+            }
+            //values[localName] = this.readGeometryElement(n, objectStack);
+        }
     }
-  }
-  var feature = new ol.Feature(values);
-  if (geometryName) {
-    feature.setGeometryName(geometryName);
-  }
-  if (fid) {
-    feature.setId(fid);
-  }
-  return feature;
+    var feature = new ol.Feature(values);
+    if (geometryName) {
+        feature.setGeometryName(geometryName);
+    }
+    if (fid) {
+        feature.setId(fid);
+    }
+    return feature;
 };
 
 
