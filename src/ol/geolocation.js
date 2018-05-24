@@ -135,36 +135,54 @@ ol.Geolocation.prototype.handleTrackingChanged_ = function() {
   }
 };
 
+ol.Geolocation.prototype.getPositionRaw = function() {
+    return /** @type {ol.Coordinate|undefined} */ (
+        this.get(ol.GeolocationProperty.POSITION_RAW));
+};
+ol.Geolocation.prototype.getAltitudeCorrected = function() {
+    return /** @type {number|undefined} */ (
+        this.get(ol.GeolocationProperty.ALTITUDE_CORRECTED));
+};
 
 /**
  * @private
  * @param {GeolocationPosition} position position event.
  */
 ol.Geolocation.prototype.positionChange_ = function(position) {
-  var coords = position.coords;
-  this.set(ol.GeolocationProperty.ACCURACY, coords.accuracy);
-  this.set(ol.GeolocationProperty.ALTITUDE,
-      coords.altitude === null ? undefined : coords.altitude);
-  this.set(ol.GeolocationProperty.ALTITUDE_ACCURACY,
-      coords.altitudeAccuracy === null ?
-        undefined : coords.altitudeAccuracy);
-  this.set(ol.GeolocationProperty.HEADING, coords.heading === null ?
-    undefined : ol.math.toRadians(coords.heading));
-  if (!this.position_) {
-    this.position_ = [coords.longitude, coords.latitude];
-  } else {
-    this.position_[0] = coords.longitude;
-    this.position_[1] = coords.latitude;
-  }
-  var projectedPosition = this.transform_(this.position_);
-  this.set(ol.GeolocationProperty.POSITION, projectedPosition);
-  this.set(ol.GeolocationProperty.SPEED,
-      coords.speed === null ? undefined : coords.speed);
-  var geometry = ol.geom.Polygon.circular(
-      this.sphere_, this.position_, coords.accuracy);
-  geometry.applyTransform(this.transform_);
-  this.set(ol.GeolocationProperty.ACCURACY_GEOMETRY, geometry);
-  this.changed();
+    var coords = position.coords;
+    //uros
+    var antenna = isNaN(this.get(ol.GeolocationProperty.ANTENNA_HEIGHT)) ? 0 : this.get(ol.GeolocationProperty.ANTENNA_HEIGHT);
+    var correction = isNaN(this.get(ol.GeolocationProperty.ALT_CORRECTION)) ? 0 : this.get(ol.GeolocationProperty.ALT_CORRECTION);
+
+    this.set(ol.GeolocationProperty.TIMESTAMP, position.timestamp);
+    this.set(ol.GeolocationProperty.ACCURACY, coords.accuracy);
+    this.set(ol.GeolocationProperty.ALTITUDE,
+        coords.altitude === null ? undefined : coords.altitude);
+    //uros
+    this.set(ol.GeolocationProperty.ALTITUDE_CORRECTED,
+        coords.altitude === null ? undefined : (coords.altitude-antenna-correction));
+
+    this.set(ol.GeolocationProperty.ALTITUDE_ACCURACY,
+        coords.altitudeAccuracy === null ?
+            undefined : coords.altitudeAccuracy);
+    this.set(ol.GeolocationProperty.HEADING, coords.heading === null ?
+        undefined : ol.math.toRadians(coords.heading));
+    if (!this.position_) {
+        this.position_ = [coords.longitude, coords.latitude];
+    } else {
+        this.position_[0] = coords.longitude;
+        this.position_[1] = coords.latitude;
+    }
+    var projectedPosition = this.transform_(this.position_);
+    this.set(ol.GeolocationProperty.POSITION, projectedPosition);
+    this.set(ol.GeolocationProperty.POSITION_RAW, this.position_); //UROS
+    this.set(ol.GeolocationProperty.SPEED,
+        coords.speed === null ? undefined : coords.speed);
+    var geometry = ol.geom.Polygon.circular(
+        this.sphere_, this.position_, coords.accuracy);
+    geometry.applyTransform(this.transform_);
+    this.set(ol.GeolocationProperty.ACCURACY_GEOMETRY, geometry);
+    this.changed();
 };
 
 /**
