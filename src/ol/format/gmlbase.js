@@ -238,10 +238,8 @@ ol.format.GMLBase.prototype.readFeatureElement = function(node, objectStack) {
             // boundedBy is an extent and must not be considered as a geometry
             if (localName !== 'boundedBy') {
                 geometryName = localName;
-                //UROS own way, ol method below doesn't work
-                values[localName] = mobAttEditor.parseGeometryPointElement(n);
             }
-            //values[localName] = this.readGeometryElement(n, objectStack);
+            values[localName] = this.readGeometryElement(n, objectStack);
         }
     }
     var feature = new ol.Feature(values);
