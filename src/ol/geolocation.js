@@ -135,24 +135,6 @@ ol.Geolocation.prototype.handleTrackingChanged_ = function() {
   }
 };
 
-ol.Geolocation.prototype.getPositionRaw = function() {
-    return /** @type {ol.Coordinate|undefined} */ (
-        this.get(ol.GeolocationProperty.POSITION_RAW));
-};
-ol.Geolocation.prototype.getAltitudeCorrected = function() {
-    return /** @type {number|undefined} */ (
-        this.get(ol.GeolocationProperty.ALTITUDE_CORRECTED));
-};
-
-ol.Geolocation.prototype.getAntennaHeight = function() {
-    return /** @type {number|undefined} */ (
-        this.get(ol.GeolocationProperty.ANTENNA_HEIGHT));
-};
-
-ol.Geolocation.prototype.getAltCorrection = function() {
-    return /** @type {number|undefined} */ (
-        this.get(ol.GeolocationProperty.ALT_CORRECTION));
-};
 
 /**
  * @private
@@ -161,8 +143,8 @@ ol.Geolocation.prototype.getAltCorrection = function() {
 ol.Geolocation.prototype.positionChange_ = function(position) {
     var coords = position.coords;
     //uros
-    var antenna = isNaN(this.getAntennaHeight()) ? 0 : this.getAntennaHeight();
-    var correction = isNaN(this.getAltCorrection()) ? 0 : this.getAltCorrection();
+    var antenna = isNaN(this.antennaHeight_()) ? 0 : this.antennaHeight_();
+    var correction = isNaN(this.altCorrection_()) ? 0 : this.altCorrection_();
 
     this.set(ol.GeolocationProperty.TIMESTAMP, position.timestamp);
     this.set(ol.GeolocationProperty.ACCURACY, coords.accuracy);
@@ -211,6 +193,24 @@ ol.Geolocation.prototype.positionError_ = function(error) {
   this.dispatchEvent(/** @type {{type: string, target: undefined}} */ (error));
 };
 
+/**
+ * NEW: 
+ * @private
+ */
+ol.Geolocation.prototype.antennaHeight_ = function() {
+    return /** @type {number|undefined} */ (
+        this.get(ol.GeolocationProperty.ANTENNA_HEIGHT));
+};
+
+
+/**
+ * NEW:
+ * @private
+ */
+ol.Geolocation.prototype.altCorrection_ = function() {
+    return /** @type {number|undefined} */ (
+        this.get(ol.GeolocationProperty.ALT_CORRECTION));
+};
 
 /**
  * Get the accuracy of the position in meters.
@@ -338,6 +338,32 @@ ol.Geolocation.prototype.getTracking = function() {
 ol.Geolocation.prototype.getTrackingOptions = function() {
   return /** @type {GeolocationPositionOptions|undefined} */ (
     this.get(ol.GeolocationProperty.TRACKING_OPTIONS));
+};
+
+
+/**
+ * NEW: Get the position of the device in EPSG:4326
+ * @return {ol.Coordinate|undefined} The current position of the device reported
+ *     in EPSG:4326 projection.
+ * @observable
+ * @api
+ */
+ol.Geolocation.prototype.getPositionRaw = function() {
+    return /** @type {ol.Coordinate|undefined} */ (
+        this.get(ol.GeolocationProperty.POSITION_RAW));
+};
+
+
+/**
+ * NEW: Get the altitude associated with the position corrected for antenna height and altitude correction (geoid ondulation value). 
+ * @return {number|undefined} The altitude of the position in meters above mean
+ *     sea level.
+ * @observable
+ * @api
+ */
+ol.Geolocation.prototype.getAltitudeCorrected = function() {
+    return /** @type {number|undefined} */ (
+        this.get(ol.GeolocationProperty.ALTITUDE_CORRECTED));
 };
 
 
